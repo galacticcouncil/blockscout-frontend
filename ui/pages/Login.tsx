@@ -1,5 +1,4 @@
 import { VStack, Textarea, Button, Alert, AlertTitle, AlertDescription, Code, Flex, Box } from '@chakra-ui/react';
-import * as Sentry from '@sentry/react';
 import mixpanel from 'mixpanel-browser';
 import type { ChangeEvent } from 'react';
 import React from 'react';
@@ -25,7 +24,7 @@ const Login = () => {
   }, []);
 
   const checkSentry = React.useCallback(() => {
-    Sentry.captureException(new Error('Test error'), { extra: { foo: 'bar' }, tags: { source: 'test' } });
+    console.error('Test error');
   }, []);
 
   const checkMixpanel = React.useCallback(() => {

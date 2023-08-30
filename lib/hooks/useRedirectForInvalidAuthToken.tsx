@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/react';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
@@ -19,7 +18,7 @@ export default function useRedirectForInvalidAuthToken() {
       const apiToken = cookies.get(cookies.NAMES.API_TOKEN);
 
       if (apiToken && loginUrl) {
-        Sentry.captureException(new Error('Invalid api token'), { tags: { source: 'invalid_api_token' } });
+        console.log('Invalid auth token, redirecting to login page');
         window.location.assign(loginUrl);
       }
     }

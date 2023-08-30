@@ -16,15 +16,11 @@
  *  - https://reactjs.org/docs/error-boundaries.html
  */
 
-import * as Sentry from '@sentry/nextjs';
-import type { GetServerSideProps } from 'next';
 import NextErrorComponent from 'next/error';
 import React from 'react';
 
 import type { Props as ServerSidePropsCommon } from 'nextjs/getServerSideProps';
-import { base as getServerSidePropsCommon } from 'nextjs/getServerSideProps';
 
-import sentryConfig from 'configs/sentry/nextjs';
 import * as cookies from 'lib/cookies';
 
 type Props = ServerSidePropsCommon & {
@@ -37,16 +33,3 @@ const CustomErrorComponent = (props: Props) => {
 };
 
 export default CustomErrorComponent;
-
-export const getServerSideProps: GetServerSideProps = async(context) => {
-  Sentry.init(sentryConfig);
-
-  // In case this is running in a serverless function, await this in order to give Sentry
-  // time to send the error before the lambda exits
-  await Sentry.captureUnderscoreErrorException(context);
-
-  const commonSSPResult = await getServerSidePropsCommon(context);
-  const commonSSProps = 'props' in commonSSPResult ? commonSSPResult.props : undefined;
-
-  return { props: { ...commonSSProps, statusCode: context.res.statusCode } };
-};

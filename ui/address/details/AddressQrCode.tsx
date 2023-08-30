@@ -13,7 +13,6 @@ import {
   IconButton,
   Skeleton,
 } from '@chakra-ui/react';
-import * as Sentry from '@sentry/react';
 import QRCode from 'qrcode';
 import React from 'react';
 
@@ -41,7 +40,7 @@ const AddressQrCode = ({ hash, className, isLoading }: Props) => {
       QRCode.toString(hash, SVG_OPTIONS, (error: Error | null | undefined, svg: string) => {
         if (error) {
           setError('We were unable to generate QR code.');
-          Sentry.captureException(error, { tags: { source: 'qr_code' } });
+          console.error(error);
           return;
         }
 

@@ -4,7 +4,6 @@ import React from 'react';
 import type { Route } from 'nextjs-routes';
 
 import useAdblockDetect from 'lib/hooks/useAdblockDetect';
-import useConfigSentry from 'lib/hooks/useConfigSentry';
 import useGetCsrfToken from 'lib/hooks/useGetCsrfToken';
 import * as metadata from 'lib/metadata';
 import * as mixpanel from 'lib/mixpanel';
@@ -18,7 +17,6 @@ const PageNextJs = (props: Props) => {
 
   useGetCsrfToken();
   useAdblockDetect();
-  useConfigSentry();
 
   const isMixpanelInited = mixpanel.useInit();
   mixpanel.useLogPageView(isMixpanelInited);

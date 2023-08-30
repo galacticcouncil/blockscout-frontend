@@ -1,5 +1,4 @@
 import type { ChakraProps } from '@chakra-ui/react';
-import * as Sentry from '@sentry/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { AppProps } from 'next/app';
@@ -41,7 +40,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const queryClient = useQueryClientConfig();
 
   const handleError = React.useCallback((error: Error) => {
-    Sentry.captureException(error);
+    console.error(error);
   }, []);
 
   const getLayout = Component.getLayout ?? ((page) => <Layout>{ page }</Layout>);

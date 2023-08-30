@@ -110,16 +110,7 @@ export function app(): CspDev.DirectiveDescriptor {
     ],
 
     ...((() => {
-      const sentryFeature = config.features.sentry;
-      if (!sentryFeature.isEnabled || !sentryFeature.cspReportUrl || config.app.isDev) {
-        return {};
-      }
-
-      return {
-        'report-uri': [
-          sentryFeature.cspReportUrl,
-        ],
-      };
+      return {};
     })()),
   };
 }

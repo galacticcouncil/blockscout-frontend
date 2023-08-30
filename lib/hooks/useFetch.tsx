@@ -1,8 +1,7 @@
-import * as Sentry from '@sentry/react';
 import React from 'react';
 
 import isBodyAllowed from 'lib/api/isBodyAllowed';
-import type { ResourceError, ResourcePath } from 'lib/api/resources';
+import type { ResourceError } from 'lib/api/resources';
 
 export interface Params {
   method?: RequestInit['method'];
@@ -12,12 +11,8 @@ export interface Params {
   credentials?: RequestCredentials;
 }
 
-interface Meta {
-  resource?: ResourcePath;
-}
-
 export default function useFetch() {
-  return React.useCallback(<Success, Error>(path: string, params?: Params, meta?: Meta): Promise<Success | ResourceError<Error>> => {
+  return React.useCallback(<Success, Error>(path: string, params?: Params): Promise<Success | ResourceError<Error>> => {
     const _body = params?.body;
     const isFormData = _body instanceof FormData;
     const withBody = isBodyAllowed(params?.method);
@@ -49,7 +44,6 @@ export default function useFetch() {
           status: response.status,
           statusText: response.statusText,
         };
-        Sentry.captureException(new Error('Client fetch failed'), { extra: { ...error, ...meta }, tags: { source: 'fetch' } });
 
         return response.json().then(
           (jsonError) => Promise.reject({

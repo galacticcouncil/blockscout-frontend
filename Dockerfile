@@ -1,15 +1,13 @@
 # *****************************
 # *** STAGE 1: Dependencies ***
 # *****************************
-FROM node:18-alpine AS deps
+FROM node:18 AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
 
 ### APP
 # Install dependencies
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN apk add git
 RUN yarn --frozen-lockfile
 
 
@@ -68,7 +66,7 @@ RUN cd ./deploy/tools/feature-reporter &&  yarn build
 
 
 ### ENV VARIABLES CHECKER
-# Copy dependencies and source code, then build 
+# Copy dependencies and source code, then build
 WORKDIR /envs-validator
 COPY --from=deps /envs-validator/node_modules ./node_modules
 COPY ./deploy/tools/envs-validator .
