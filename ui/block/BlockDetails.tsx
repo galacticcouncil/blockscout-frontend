@@ -116,14 +116,6 @@ const BlockDetails = ({ query }: Props) => {
             </Tooltip>
           </>
         ) }
-        { !burntFees.isEqualTo(ZERO) && (
-          <>
-            { space }-{ space }
-            <Tooltip label="Burnt fees">
-              <span>{ burntFees.dividedBy(WEI).toFixed() }</span>
-            </Tooltip>
-          </>
-        ) }
       </Text>
     );
   })();
@@ -178,13 +170,24 @@ const BlockDetails = ({ query }: Props) => {
       </DetailsInfoItem>
       <DetailsInfoItem
         title="Transactions"
-        hint="The number of transactions in the block"
+        hint="The number of EVM transactions in the block"
         isLoading={ isPlaceholderData }
       >
         <Skeleton isLoaded={ !isPlaceholderData }>
           <LinkInternal href={ route({ pathname: '/block/[height_or_hash]', query: { height_or_hash: heightOrHash, tab: 'txs' } }) }>
             { data.tx_count } transaction{ data.tx_count === 1 ? '' : 's' }
           </LinkInternal>
+        </Skeleton>
+      </DetailsInfoItem>
+      <DetailsInfoItem
+        title="Extrinsics"
+        hint="Explore the substrate extrinsics in this block"
+        isLoading={ isPlaceholderData }
+      >
+        <Skeleton isLoaded={ !isPlaceholderData }>
+          <Link isExternal={true} href={ `https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.nice.hydration.cloud#/explorer/query/${data.height}` }>
+             polkadot.js
+          </Link>
         </Skeleton>
       </DetailsInfoItem>
       { config.features.beaconChain.isEnabled && Boolean(data.withdrawals_count) && (
@@ -201,7 +204,7 @@ const BlockDetails = ({ query }: Props) => {
         </DetailsInfoItem>
       ) }
       <DetailsInfoItem
-        title={ config.chain.verificationType === 'validation' ? 'Validated by' : 'Mined by' }
+        title={ config.chain.verificationType === 'validation' ? 'Validated by' : 'Collated by' }
         hint="A block producer who successfully included the block onto the blockchain"
         columnGap={ 1 }
         isLoading={ isPlaceholderData }
@@ -299,33 +302,6 @@ const BlockDetails = ({ query }: Props) => {
                 { space }({ BigNumber(data.base_fee_per_gas).dividedBy(WEI_IN_GWEI).toFixed() } Gwei)
               </Text>
             </>
-          ) }
-        </DetailsInfoItem>
-      ) }
-      { !config.UI.views.block.hiddenFields?.burnt_fees && (
-        <DetailsInfoItem
-          title="Burnt fees"
-          hint={
-            `Amount of ${ config.chain.currency.symbol || 'native token' } burned from transactions included in the block.
-
-          Equals Block Base Fee per Gas * Gas Used`
-          }
-          isLoading={ isPlaceholderData }
-        >
-          <Icon as={ flameIcon } boxSize={ 5 } color="gray.500" isLoading={ isPlaceholderData }/>
-          <Skeleton isLoaded={ !isPlaceholderData } ml={ 1 }>
-            { burntFees.dividedBy(WEI).toFixed() } { config.chain.currency.symbol }
-          </Skeleton>
-          { !txFees.isEqualTo(ZERO) && (
-            <Tooltip label="Burnt fees / Txn fees * 100%">
-              <Box>
-                <Utilization
-                  ml={ 4 }
-                  value={ burntFees.dividedBy(txFees).toNumber() }
-                  isLoading={ isPlaceholderData }
-                />
-              </Box>
-            </Tooltip>
           ) }
         </DetailsInfoItem>
       ) }
