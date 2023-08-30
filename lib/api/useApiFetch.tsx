@@ -53,9 +53,6 @@ export default function useApiFetch() {
         headers,
         ...fetchParams,
       },
-      {
-        resource: resource.path,
-      },
     );
   }, [ fetch, csrfToken ]);
 }
