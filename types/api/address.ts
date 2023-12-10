@@ -3,7 +3,7 @@ import type { Transaction } from 'types/api/transaction';
 import type { UserTags } from './addressParams';
 import type { Block } from './block';
 import type { InternalTransaction } from './internalTransaction';
-import type { TokenInfo, TokenInstance, TokenType } from './token';
+import type { NFTTokenType, TokenInfo, TokenInstance, TokenType } from './token';
 import type { TokenTransfer, TokenTransferPagination } from './tokenTransfer';
 
 export interface Address extends UserTags {
@@ -12,6 +12,7 @@ export interface Address extends UserTags {
   creator_address_hash: string | null;
   creation_tx_hash: string | null;
   exchange_rate: string | null;
+  // TODO: if we are happy with tabs-counters method, should we delete has_something fields?
   has_beacon_chain_withdrawals?: boolean;
   has_custom_methods_read: boolean;
   has_custom_methods_write: boolean;
@@ -48,14 +49,44 @@ export interface AddressTokenBalance {
   token_instance: TokenInstance | null;
 }
 
+export type AddressNFT = TokenInstance & {
+  token: TokenInfo;
+  token_type: Omit<TokenType, 'ERC-20'>;
+  value: string;
+}
+
+export type AddressCollection = {
+  token: TokenInfo;
+  amount: string;
+  token_instances: Array<Omit<AddressNFT, 'token'>>;
+}
+
 export interface AddressTokensResponse {
   items: Array<AddressTokenBalance>;
   next_page_params: {
     items_count: number;
-    token_name: 'string' | null;
+    token_name: string | null;
     token_type: TokenType;
     value: number;
     fiat_value: string | null;
+  } | null;
+}
+
+export interface AddressNFTsResponse {
+  items: Array<AddressNFT>;
+  next_page_params: {
+    items_count: number;
+    token_id: string;
+    token_type: TokenType;
+    token_contract_address_hash: string;
+  } | null;
+}
+
+export interface AddressCollectionsResponse {
+  items: Array<AddressCollection>;
+  next_page_params: {
+    token_contract_address_hash: string;
+    token_type: TokenType;
   } | null;
 }
 
@@ -94,6 +125,10 @@ export type AddressTokenTransferFilters = {
 
 export type AddressTokensFilter = {
   type: TokenType;
+}
+
+export type AddressNFTTokensFilter = {
+  type: Array<NFTTokenType> | undefined;
 }
 
 export interface AddressCoinBalanceHistoryItem {
@@ -148,4 +183,14 @@ export type AddressWithdrawalsItem = {
   index: number;
   timestamp: string;
   validator_index: number;
+}
+
+export type AddressTabsCounters = {
+  internal_txs_count: number | null;
+  logs_count: number | null;
+  token_balances_count: number | null;
+  token_transfers_count: number | null;
+  transactions_count: number | null;
+  validations_count: number | null;
+  withdrawals_count: number | null;
 }

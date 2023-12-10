@@ -6,4 +6,5 @@ export { googleFonts } from './googleFonts';
 export { googleReCaptcha } from './googleReCaptcha';
 export { mixpanel } from './mixpanel';
 export { monaco } from './monaco';
+export { safe } from './safe';
 export { walletConnect } from './walletConnect';

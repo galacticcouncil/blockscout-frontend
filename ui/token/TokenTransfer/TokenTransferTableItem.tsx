@@ -1,19 +1,16 @@
 import { Tr, Td, Grid, Skeleton, Box } from '@chakra-ui/react';
-import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import type { TokenTransfer } from 'types/api/tokenTransfer';
 
 import eastArrowIcon from 'icons/arrows/east.svg';
+import getCurrencyValue from 'lib/getCurrencyValue';
 import useTimeAgoIncrement from 'lib/hooks/useTimeAgoIncrement';
-import Address from 'ui/shared/address/Address';
-import AddressIcon from 'ui/shared/address/AddressIcon';
-import AddressLink from 'ui/shared/address/AddressLink';
 import Icon from 'ui/shared/chakra/Icon';
 import Tag from 'ui/shared/chakra/Tag';
-import CopyToClipboard from 'ui/shared/CopyToClipboard';
+import AddressEntityWithTokenFilter from 'ui/shared/entities/address/AddressEntityWithTokenFilter';
+import NftEntity from 'ui/shared/entities/nft/NftEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
-import TokenTransferNft from 'ui/shared/TokenTransfer/TokenTransferNft';
 
 type Props = TokenTransfer & { tokenId?: string; isLoading?: boolean }
 
@@ -29,6 +26,13 @@ const TokenTransferTableItem = ({
   isLoading,
 }: Props) => {
   const timeAgo = useTimeAgoIncrement(timestamp, true);
+  const { usd, valueStr } = 'value' in total ? getCurrencyValue({
+    value: total.value,
+    exchangeRate: token.exchange_rate,
+    accuracy: 8,
+    accuracyUsd: 2,
+    decimals: total.decimals || '0',
+  }) : { usd: null, valueStr: null };
 
   return (
     <Tr alignItems="top">
@@ -57,21 +61,13 @@ const TokenTransferTableItem = ({
         ) : null }
       </Td>
       <Td>
-        <Address display="inline-flex" maxW="100%" py="3px">
-          <AddressIcon address={ from } isLoading={ isLoading }/>
-          <AddressLink
-            ml={ 2 }
-            flexGrow={ 1 }
-            fontWeight="500"
-            type="address_token"
-            hash={ from.hash }
-            alias={ from.name }
-            tokenHash={ token.address }
-            truncation="constant"
-            isLoading={ isLoading }
-          />
-          <CopyToClipboard text={ from.hash } isLoading={ isLoading }/>
-        </Address>
+        <AddressEntityWithTokenFilter
+          address={ from }
+          isLoading={ isLoading }
+          truncation="constant"
+          tokenHash={ token.address }
+          my="5px"
+        />
       </Td>
       <Td px={ 0 }>
         <Box my="3px">
@@ -79,30 +75,21 @@ const TokenTransferTableItem = ({
         </Box>
       </Td>
       <Td>
-        <Address display="inline-flex" maxW="100%" py="3px">
-          <AddressIcon address={ to } isLoading={ isLoading }/>
-          <AddressLink
-            ml={ 2 }
-            flexGrow={ 1 }
-            fontWeight="500"
-            type="address_token"
-            hash={ to.hash }
-            alias={ to.name }
-            tokenHash={ token.address }
-            truncation="constant"
-            isLoading={ isLoading }
-          />
-          <CopyToClipboard text={ to.hash } isLoading={ isLoading }/>
-        </Address>
+        <AddressEntityWithTokenFilter
+          address={ to }
+          isLoading={ isLoading }
+          truncation="constant"
+          tokenHash={ token.address }
+          my="5px"
+        />
       </Td>
       { (token.type === 'ERC-721' || token.type === 'ERC-1155') && (
         <Td>
           { 'token_id' in total ? (
-            <TokenTransferNft
+            <NftEntity
               hash={ token.address }
               id={ total.token_id }
-              justifyContent={ token.type === 'ERC-721' ? 'end' : 'start' }
-              isDisabled={ Boolean(tokenId && tokenId === total.token_id) }
+              noLink={ Boolean(tokenId && tokenId === total.token_id) }
               isLoading={ isLoading }
             />
           ) : ''
@@ -111,9 +98,16 @@ const TokenTransferTableItem = ({
       ) }
       { (token.type === 'ERC-20' || token.type === 'ERC-1155') && (
         <Td isNumeric verticalAlign="top">
-          <Skeleton isLoaded={ !isLoading } my="7px">
-            { 'value' in total && BigNumber(total.value).div(BigNumber(10 ** Number(total.decimals))).dp(8).toFormat() }
-          </Skeleton>
+          { valueStr && (
+            <Skeleton isLoaded={ !isLoading } display="inline-block" mt="7px" wordBreak="break-all">
+              { valueStr }
+            </Skeleton>
+          ) }
+          { usd && (
+            <Skeleton isLoaded={ !isLoading } color="text_secondary" mt="10px" wordBreak="break-all">
+              <span>${ usd }</span>
+            </Skeleton>
+          ) }
         </Td>
       ) }
     </Tr>

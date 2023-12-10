@@ -59,8 +59,13 @@ const NavigationDesktop = () => {
       py={ 12 }
       width={{ lg: isExpanded ? '229px' : '92px', xl: isCollapsed ? '92px' : '229px' }}
       { ...getDefaultTransitionProps({ transitionProperty: 'width, padding' }) }
+      sx={{
+        '&:hover #expand-icon': {
+          display: 'block',
+        },
+      }}
     >
-      { config.chain.isTestnet && <Icon as={ testnetIcon } h="14px" w="auto" color="red.400" pl={ 3 } alignSelf="flex-start"/> }
+      { config.chain.isTestnet && <Icon as={ testnetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> }
       <Box
         as="header"
         display="flex"
@@ -113,6 +118,8 @@ const NavigationDesktop = () => {
         cursor="pointer"
         onClick={ handleTogglerClick }
         aria-label="Expand/Collapse menu"
+        id="expand-icon"
+        display="none"
       />
     </Flex>
   );

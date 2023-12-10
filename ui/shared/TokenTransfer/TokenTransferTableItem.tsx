@@ -1,20 +1,17 @@
 import { Tr, Td, Flex, Skeleton, Box } from '@chakra-ui/react';
-import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import type { TokenTransfer } from 'types/api/tokenTransfer';
 
+import getCurrencyValue from 'lib/getCurrencyValue';
 import useTimeAgoIncrement from 'lib/hooks/useTimeAgoIncrement';
-import Address from 'ui/shared/address/Address';
-import AddressIcon from 'ui/shared/address/AddressIcon';
-import AddressLink from 'ui/shared/address/AddressLink';
 import Tag from 'ui/shared/chakra/Tag';
-import CopyToClipboard from 'ui/shared/CopyToClipboard';
+import AddressEntity from 'ui/shared/entities/address/AddressEntity';
+import NftEntity from 'ui/shared/entities/nft/NftEntity';
+import TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import InOutTag from 'ui/shared/InOutTag';
-import TokenSnippet from 'ui/shared/TokenSnippet/TokenSnippet';
 import { getTokenTransferTypeText } from 'ui/shared/TokenTransfer/helpers';
-import TokenTransferNft from 'ui/shared/TokenTransfer/TokenTransferNft';
 import TxAdditionalInfo from 'ui/txs/TxAdditionalInfo';
 
 type Props = TokenTransfer & {
@@ -38,6 +35,13 @@ const TokenTransferTableItem = ({
   isLoading,
 }: Props) => {
   const timeAgo = useTimeAgoIncrement(timestamp, enableTimeIncrement);
+  const { usd, valueStr } = 'value' in total ? getCurrencyValue({
+    value: total.value,
+    exchangeRate: token.exchange_rate,
+    accuracy: 8,
+    accuracyUsd: 2,
+    decimals: total.decimals || '0',
+  }) : { usd: null, valueStr: null };
 
   return (
     <Tr alignItems="top">
@@ -50,13 +54,19 @@ const TokenTransferTableItem = ({
       ) }
       <Td>
         <Flex flexDir="column" alignItems="flex-start" my="3px" rowGap={ 2 }>
-          <TokenSnippet data={ token } isLoading={ isLoading } hideSymbol/>
+          <TokenEntity
+            token={ token }
+            isLoading={ isLoading }
+            noSymbol
+            noCopy
+            my="2px"
+          />
           <Tag isLoading={ isLoading }>{ token.type }</Tag>
           <Tag colorScheme="orange" isLoading={ isLoading }>{ getTokenTransferTypeText(type) }</Tag>
         </Flex>
       </Td>
       <Td>
-        { 'token_id' in total && <TokenTransferNft hash={ token.address } id={ total.token_id } isLoading={ isLoading }/> }
+        { 'token_id' in total && <NftEntity hash={ token.address } id={ total.token_id } isLoading={ isLoading }/> }
       </Td>
       { showTxInfo && txHash && (
         <Td>
@@ -75,19 +85,14 @@ const TokenTransferTableItem = ({
         </Td>
       ) }
       <Td>
-        <Address display="inline-flex" maxW="100%" my="3px">
-          <AddressIcon address={ from } isLoading={ isLoading }/>
-          <AddressLink
-            type="address" ml={ 2 }
-            fontWeight="500"
-            hash={ from.hash }
-            alias={ from.name }
-            flexGrow={ 1 }
-            isDisabled={ baseAddress === from.hash }
-            isLoading={ isLoading }
-          />
-          { baseAddress !== from.hash && <CopyToClipboard text={ from.hash } isLoading={ isLoading }/> }
-        </Address>
+        <AddressEntity
+          address={ from }
+          isLoading={ isLoading }
+          my="5px"
+          noLink={ baseAddress === from.hash }
+          noCopy={ baseAddress === from.hash }
+          flexGrow={ 1 }
+        />
       </Td>
       { baseAddress && (
         <Td px={ 0 }>
@@ -103,25 +108,26 @@ const TokenTransferTableItem = ({
         </Td>
       ) }
       <Td>
-        <Address display="inline-flex" maxW="100%" my="3px">
-          <AddressIcon address={ to } isLoading={ isLoading }/>
-          <AddressLink
-            type="address"
-            ml={ 2 }
-            fontWeight="500"
-            hash={ to.hash }
-            alias={ to.name }
-            flexGrow={ 1 }
-            isDisabled={ baseAddress === to.hash }
-            isLoading={ isLoading }
-          />
-          { baseAddress !== to.hash && <CopyToClipboard text={ to.hash } isLoading={ isLoading }/> }
-        </Address>
+        <AddressEntity
+          address={ to }
+          isLoading={ isLoading }
+          my="5px"
+          noLink={ baseAddress === to.hash }
+          noCopy={ baseAddress === to.hash }
+          flexGrow={ 1 }
+        />
       </Td>
       <Td isNumeric verticalAlign="top">
-        <Skeleton isLoaded={ !isLoading } display="inline-block" my="7px">
-          { 'value' in total && BigNumber(total.value).div(BigNumber(10 ** Number(total.decimals))).dp(8).toFormat() }
-        </Skeleton>
+        { valueStr && (
+          <Skeleton isLoaded={ !isLoading } display="inline-block" mt="7px" wordBreak="break-all">
+            { valueStr }
+          </Skeleton>
+        ) }
+        { usd && (
+          <Skeleton isLoaded={ !isLoading } color="text_secondary" mt="10px" ml="auto" w="min-content">
+            <span>${ usd }</span>
+          </Skeleton>
+        ) }
       </Td>
     </Tr>
   );

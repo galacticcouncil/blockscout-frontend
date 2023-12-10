@@ -1,4 +1,12 @@
-import type { Address, AddressCoinBalanceHistoryItem, AddressCounters, AddressTokenBalance } from 'types/api/address';
+import type {
+  Address,
+  AddressCoinBalanceHistoryItem,
+  AddressCollection,
+  AddressCounters,
+  AddressNFT,
+  AddressTabsCounters,
+  AddressTokenBalance,
+} from 'types/api/address';
 import type { AddressesItem } from 'types/api/addresses';
 
 import { ADDRESS_HASH } from './addressParams';
@@ -42,6 +50,16 @@ export const ADDRESS_COUNTERS: AddressCounters = {
   validations_count: '0',
 };
 
+export const ADDRESS_TABS_COUNTERS: AddressTabsCounters = {
+  internal_txs_count: 10,
+  logs_count: 10,
+  token_balances_count: 10,
+  token_transfers_count: 10,
+  transactions_count: 10,
+  validations_count: 10,
+  withdrawals_count: 10,
+};
+
 export const TOP_ADDRESS: AddressesItem = {
   coin_balance: '11886682377162664596540805',
   tx_count: '1835',
@@ -70,16 +88,22 @@ export const ADDRESS_TOKEN_BALANCE_ERC_20: AddressTokenBalance = {
   value: '1000000000000000000000000',
 };
 
-export const ADDRESS_TOKEN_BALANCE_ERC_721: AddressTokenBalance = {
+export const ADDRESS_NFT_721: AddressNFT = {
+  token_type: 'ERC-721',
   token: TOKEN_INFO_ERC_721,
-  token_id: null,
-  token_instance: null,
-  value: '176',
+  value: '1',
+  ...TOKEN_INSTANCE,
 };
 
-export const ADDRESS_TOKEN_BALANCE_ERC_1155: AddressTokenBalance = {
+export const ADDRESS_NFT_1155: AddressNFT = {
+  token_type: 'ERC-1155',
   token: TOKEN_INFO_ERC_1155,
-  token_id: '188882',
-  token_instance: TOKEN_INSTANCE,
-  value: '176',
+  value: '10',
+  ...TOKEN_INSTANCE,
+};
+
+export const ADDRESS_COLLECTION: AddressCollection = {
+  token: TOKEN_INFO_ERC_1155,
+  amount: '4',
+  token_instances: Array(4).fill(TOKEN_INSTANCE),
 };

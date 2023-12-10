@@ -1,4 +1,4 @@
-import { Flex, Hide, Icon, Show, Text, Tooltip, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Hide, Show, Text } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -9,7 +9,6 @@ import type { AddressFromToFilter, AddressTokenTransferResponse } from 'types/ap
 import type { TokenType } from 'types/api/token';
 import type { TokenTransfer } from 'types/api/tokenTransfer';
 
-import crossIcon from 'icons/cross.svg';
 import { getResourceKey } from 'lib/api/useApiQuery';
 import getFilterValueFromQuery from 'lib/getFilterValueFromQuery';
 import getFilterValuesFromQuery from 'lib/getFilterValuesFromQuery';
@@ -18,15 +17,16 @@ import { apos } from 'lib/html-entities';
 import getQueryParamString from 'lib/router/getQueryParamString';
 import useSocketChannel from 'lib/socket/useSocketChannel';
 import useSocketMessage from 'lib/socket/useSocketMessage';
-import TOKEN_TYPE from 'lib/token/tokenTypes';
+import { TOKEN_TYPE_IDS } from 'lib/token/tokenTypes';
 import { getTokenTransfersStub } from 'stubs/token';
 import ActionBar from 'ui/shared/ActionBar';
 import DataListDisplay from 'ui/shared/DataListDisplay';
+import * as TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import HashStringShorten from 'ui/shared/HashStringShorten';
 import Pagination from 'ui/shared/pagination/Pagination';
 import useQueryWithPages from 'ui/shared/pagination/useQueryWithPages';
+import ResetIconButton from 'ui/shared/ResetIconButton';
 import * as SocketNewItemsNotice from 'ui/shared/SocketNewItemsNotice';
-import TokenLogo from 'ui/shared/TokenLogo';
 import TokenTransferFilter from 'ui/shared/TokenTransfer/TokenTransferFilter';
 import TokenTransferList from 'ui/shared/TokenTransfer/TokenTransferList';
 import TokenTransferTable from 'ui/shared/TokenTransfer/TokenTransferTable';
@@ -38,9 +38,7 @@ type Filters = {
   filter: AddressFromToFilter | undefined;
 }
 
-const TOKEN_TYPES = TOKEN_TYPE.map(i => i.id);
-
-const getTokenFilterValue = (getFilterValuesFromQuery<TokenType>).bind(null, TOKEN_TYPES);
+const getTokenFilterValue = (getFilterValuesFromQuery<TokenType>).bind(null, TOKEN_TYPE_IDS);
 const getAddressFilterValue = (getFilterValueFromQuery<AddressFromToFilter>).bind(null, AddressFromToFilterValues);
 
 const OVERLOAD_COUNT = 75;
@@ -116,9 +114,6 @@ const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Pr
   const resetTokenFilter = React.useCallback(() => {
     onFilterChange({});
   }, [ onFilterChange ]);
-
-  const resetTokenIconColor = useColorModeValue('blue.600', 'blue.300');
-  const resetTokenIconHoverColor = useColorModeValue('blue.400', 'blue.200');
 
   const handleNewSocketMessage: SocketMessage.AddressTokenTransfer['handler'] = (payload) => {
     setSocketAlert('');
@@ -227,27 +222,17 @@ const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Pr
     address: tokenFilter || '',
     name: '',
     icon_url: '',
+    symbol: '',
+    type: 'ERC-20' as const,
   }), [ tokenFilter ]);
 
   const tokenFilterComponent = tokenFilter && (
     <Flex alignItems="center" flexWrap="wrap" mb={{ base: isActionBarHidden ? 3 : 6, lg: 0 }} mr={ 4 }>
       <Text whiteSpace="nowrap" mr={ 2 } py={ 1 }>Filtered by token</Text>
       <Flex alignItems="center" py={ 1 }>
-        <TokenLogo data={ tokenData } boxSize={ 6 } mr={ 2 }/>
+        <TokenEntity.Icon token={ tokenData } isLoading={ isPlaceholderData }/>
         { isMobile ? <HashStringShorten hash={ tokenFilter }/> : tokenFilter }
-        <Tooltip label="Reset filter">
-          <Flex>
-            <Icon
-              as={ crossIcon }
-              boxSize={ 6 }
-              ml={ 1 }
-              color={ resetTokenIconColor }
-              cursor="pointer"
-              _hover={{ color: resetTokenIconHoverColor }}
-              onClick={ resetTokenFilter }
-            />
-          </Flex>
-        </Tooltip>
+        <ResetIconButton onClick={ resetTokenFilter }/>
       </Flex>
     </Flex>
   );

@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype';
 
-export type SmartContractMethodArgType = 'address' | 'uint256' | 'bool' | 'string' | 'bytes' | 'bytes32';
+export type SmartContractMethodArgType = 'address' | 'uint256' | 'bool' | 'string' | 'bytes' | 'bytes32' | 'bytes32[]';
 export type SmartContractMethodStateMutability = 'view' | 'nonpayable' | 'payable';
 
 export interface SmartContract {
@@ -91,7 +91,7 @@ export interface SmartContractMethodInput {
 }
 
 export interface SmartContractMethodOutput extends SmartContractMethodInput {
-  value?: string | boolean;
+  value?: string | boolean | object;
 }
 
 export interface SmartContractQueryMethodReadSuccess {
@@ -110,9 +110,14 @@ export interface SmartContractQueryMethodReadError {
   result: {
     code: number;
     message: string;
-    raw?: string;
   } | {
     error: string;
+  } | {
+    raw: string;
+  } | {
+    method_call: string;
+    method_id: string;
+    parameters: Array<{ 'name': string; 'type': string; 'value': string }>;
   };
 }
 
@@ -150,4 +155,26 @@ export interface SmartContractVerificationError {
   compiler_version?: Array<string>;
   constructor_arguments?: Array<string>;
   name?: Array<string>;
+}
+
+export type SolidityscanReport = {
+  scan_report: {
+    scan_status: string;
+    scan_summary: {
+      issue_severity_distribution: {
+        critical: number;
+        gas: number;
+        high: number;
+        informational: number;
+        low: number;
+        medium: number;
+      };
+      lines_analyzed_count: number;
+      scan_time_taken: number;
+      score: string;
+      score_v2: string;
+      threat_score: string;
+    };
+    scanner_reference_url: string;
+  };
 }
