@@ -10,7 +10,6 @@ export { default as graphqlApiDocs } from './graphqlApiDocs';
 export { default as marketplace } from './marketplace';
 export { default as mixpanel } from './mixpanel';
 export { default as restApiDocs } from './restApiDocs';
-export { default as rollup } from './rollup';
 export { default as sol2uml } from './sol2uml';
 export { default as stats } from './stats';
 export { default as web3Wallet } from './web3Wallet';
