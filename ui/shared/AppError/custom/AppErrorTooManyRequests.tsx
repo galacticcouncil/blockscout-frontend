@@ -24,6 +24,8 @@ const AppErrorTooManyRequests = () => {
           method: 'POST',
           body: { recaptcha_response: token },
           credentials: 'include',
+        }, {
+          resource: 'api_v2_key',
         });
 
         window.location.reload();
