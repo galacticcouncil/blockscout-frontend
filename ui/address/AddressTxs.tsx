@@ -5,7 +5,7 @@ import React from 'react';
 import type { SocketMessage } from 'lib/socket/types';
 import type { AddressFromToFilter, AddressTransactionsResponse } from 'types/api/address';
 import { AddressFromToFilterValues } from 'types/api/address';
-import type { Transaction } from 'types/api/transaction';
+import type { Transaction, TransactionsSortingField, TransactionsSortingValue, TransactionsSorting } from 'types/api/transaction';
 
 import { getResourceKey } from 'lib/api/useApiQuery';
 import getFilterValueFromQuery from 'lib/getFilterValueFromQuery';
@@ -18,7 +18,11 @@ import { generateListStub } from 'stubs/utils';
 import ActionBar from 'ui/shared/ActionBar';
 import Pagination from 'ui/shared/pagination/Pagination';
 import useQueryWithPages from 'ui/shared/pagination/useQueryWithPages';
-import TxsContent from 'ui/txs/TxsContent';
+import getSortParamsFromValue from 'ui/shared/sort/getSortParamsFromValue';
+import getSortValueFromQuery from 'ui/shared/sort/getSortValueFromQuery';
+import { sortTxsFromSocket } from 'ui/txs/sortTxs';
+import TxsWithAPISorting from 'ui/txs/TxsWithAPISorting';
+import { SORT_OPTIONS } from 'ui/txs/useTxsSort';
 
 import AddressCsvExportLink from './AddressCsvExportLink';
 import AddressTxsFilter from './AddressTxsFilter';
@@ -53,6 +57,7 @@ const AddressTxs = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Props) => {
 
   const [ socketAlert, setSocketAlert ] = React.useState('');
   const [ newItemsCount, setNewItemsCount ] = React.useState(0);
+  const [ sort, setSort ] = React.useState<TransactionsSortingValue | undefined>(getSortValueFromQuery<TransactionsSortingValue>(router.query, SORT_OPTIONS));
 
   const isMobile = useIsMobile();
   const currentAddress = getQueryParamString(router.query.hash);
@@ -63,6 +68,7 @@ const AddressTxs = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Props) => {
     resourceName: 'address_txs',
     pathParams: { hash: currentAddress },
     filters: { filter: filterValue },
+    sorting: getSortParamsFromValue<TransactionsSortingValue, TransactionsSortingField, TransactionsSorting['order']>(sort),
     scrollRef,
     options: {
       placeholderData: generateListStub<'address_txs'>(TX, 50, { next_page_params: {
@@ -80,7 +86,7 @@ const AddressTxs = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Props) => {
     addressTxsQuery.onFilterChange({ filter: newVal });
   }, [ addressTxsQuery ]);
 
-  const handleNewSocketMessage: SocketMessage.AddressTxs['handler'] = (payload) => {
+  const handleNewSocketMessage: SocketMessage.AddressTxs['handler'] = React.useCallback((payload) => {
     setSocketAlert('');
 
     queryClient.setQueryData(
@@ -118,10 +124,10 @@ const AddressTxs = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Props) => {
           items: [
             ...newItems,
             ...prevData.items,
-          ],
+          ].sort(sortTxsFromSocket(sort)),
         };
       });
-  };
+  }, [ currentAddress, filterValue, overloadCount, queryClient, sort ]);
 
   const handleSocketClose = React.useCallback(() => {
     setSocketAlert('Connection is lost. Please refresh the page to load new transactions.');
@@ -177,7 +183,7 @@ const AddressTxs = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Props) => {
           <Pagination { ...addressTxsQuery.pagination } ml={ 8 }/>
         </ActionBar>
       ) }
-      <TxsContent
+      <TxsWithAPISorting
         filter={ filter }
         filterValue={ filterValue }
         query={ addressTxsQuery }
@@ -187,6 +193,8 @@ const AddressTxs = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Props) => {
         socketInfoAlert={ socketAlert }
         socketInfoNum={ newItemsCount }
         top={ 80 }
+        sorting={ sort }
+        setSort={ setSort }
       />
     </>
   );

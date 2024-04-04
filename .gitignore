@@ -14,6 +14,8 @@
 /out/
 /public/assets/
 /public/envs.js
+/public/icons/sprite.svg
+/public/icons/README.md
 /analyze
 
 # production
@@ -23,6 +25,7 @@
 .DS_Store
 *.pem
 .tools
+grafana
 
 # debug
 npm-debug.log*
@@ -49,6 +52,7 @@ yarn-error.log*
 /playwright/.cache/
 /playwright/.browser/
 /playwright/envs.js
+/playwright/affected-tests.txt
 
 **.dec**
 .idea/

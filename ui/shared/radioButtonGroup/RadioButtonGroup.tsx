@@ -1,14 +1,18 @@
-import { ButtonGroup, Button, Flex, Icon, useRadio, useRadioGroup, useColorModeValue } from '@chakra-ui/react';
+import { ButtonGroup, Button, Flex, useRadio, useRadioGroup, useColorModeValue } from '@chakra-ui/react';
 import type { UseRadioProps } from '@chakra-ui/react';
 import React from 'react';
 
+import type { IconName } from 'ui/shared/IconSvg';
+import IconSvg from 'ui/shared/IconSvg';
+
 type RadioItemProps = {
   title: string;
-  icon?: React.FC<React.SVGAttributes<SVGElement>>;
+  icon?: IconName;
   onlyIcon: false | undefined;
+  contentAfter?: React.ReactNode;
 } | {
   title: string;
-  icon: React.FC<React.SVGAttributes<SVGElement>>;
+  icon: IconName;
   onlyIcon: true;
 }
 
@@ -50,7 +54,7 @@ const RadioButton = (props: RadioButtonProps) => {
         <Flex
           { ...checkbox }
         >
-          <Icon as={ props.icon } boxSize={ 5 }/>
+          <IconSvg name={ props.icon } boxSize={ 5 }/>
         </Flex>
       </Button>
     );
@@ -59,14 +63,16 @@ const RadioButton = (props: RadioButtonProps) => {
   return (
     <Button
       as="label"
-      leftIcon={ props.icon ? <Icon as={ props.icon } boxSize={ 5 } mr={ -1 }/> : undefined }
+      leftIcon={ props.icon ? <IconSvg name={ props.icon } boxSize={ 5 } mr={ -1 }/> : undefined }
       { ...styleProps }
     >
       <input { ...input }/>
       <Flex
+        alignItems="center"
         { ...checkbox }
       >
         { props.title }
+        { props.contentAfter }
       </Flex>
     </Button>
   );
@@ -77,15 +83,22 @@ type RadioButtonGroupProps<T extends string> = {
   name: string;
   defaultValue: string;
   options: Array<{ value: T } & RadioItemProps>;
+  autoWidth?: boolean;
 }
 
-const RadioButtonGroup = <T extends string>({ onChange, name, defaultValue, options }: RadioButtonGroupProps<T>) => {
+const RadioButtonGroup = <T extends string>({ onChange, name, defaultValue, options, autoWidth = false }: RadioButtonGroupProps<T>) => {
   const { getRootProps, getRadioProps } = useRadioGroup({ name, defaultValue, onChange });
 
   const group = getRootProps();
 
   return (
-    <ButtonGroup { ...group } isAttached size="sm" display="grid" gridTemplateColumns={ `repeat(${ options.length }, 1fr)` }>
+    <ButtonGroup
+      { ...group }
+      isAttached
+      size="sm"
+      display="grid"
+      gridTemplateColumns={ `repeat(${ options.length }, ${ autoWidth ? 'auto' : '1fr' })` }
+    >
       { options.map((option) => {
         const props = getRadioProps({ value: option.value });
         return <RadioButton { ...props } key={ option.value } { ...option }/>;

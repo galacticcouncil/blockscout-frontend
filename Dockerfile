@@ -1,16 +1,17 @@
 # *****************************
 # *** STAGE 1: Dependencies ***
 # *****************************
-FROM node:18-alpine AS deps
+FROM node:20.11.0-alpine AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat python3 make g++
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 
 ### APP
 # Install dependencies
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN apk add git
-RUN yarn --frozen-lockfile --ignore-optional
+RUN yarn --frozen-lockfile
 
 
 ### FEATURE REPORTER
@@ -30,7 +31,7 @@ RUN yarn --frozen-lockfile
 # *****************************
 # ****** STAGE 2: Build *******
 # *****************************
-FROM node:18-alpine AS builder
+FROM node:20.11.0-alpine AS builder
 RUN apk add --no-cache --upgrade libc6-compat bash
 
 # pass commit sha and git tag to the app image
@@ -58,6 +59,7 @@ RUN ./collect_envs.sh ./docs/ENVS.md
 
 # Build app for production
 RUN yarn build
+RUN yarn svg:build-sprite
 
 
 ### FEATURE REPORTER
@@ -77,7 +79,7 @@ RUN cd ./deploy/tools/envs-validator && yarn build
 # ******* STAGE 3: Run ********
 # *****************************
 # Production image, copy all the files and run next
-FROM node:18-alpine AS runner
+FROM node:20.11.0-alpine AS runner
 RUN apk add --no-cache --upgrade bash curl jq unzip
 
 ### APP
@@ -88,6 +90,10 @@ WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
 
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public

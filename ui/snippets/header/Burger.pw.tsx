@@ -4,7 +4,8 @@ import React from 'react';
 import { buildExternalAssetFilePath } from 'configs/app/utils';
 import { FEATURED_NETWORKS_MOCK } from 'mocks/config/network';
 import authFixture from 'playwright/fixtures/auth';
-import contextWithEnvs, { createContextWithEnvs } from 'playwright/fixtures/contextWithEnvs';
+import contextWithEnvs from 'playwright/fixtures/contextWithEnvs';
+import createContextWithStorage from 'playwright/fixtures/createContextWithStorage';
 import TestApp from 'playwright/TestApp';
 import * as app from 'playwright/utils/app';
 
@@ -50,7 +51,7 @@ test('base view', async({ mount, page }) => {
     { hooksConfig },
   );
 
-  await component.locator('svg[aria-label="Menu button"]').click();
+  await component.locator('div[aria-label="Menu button"]').click();
   await expect(page.locator('.chakra-modal__content-container')).toHaveScreenshot();
 
   await page.locator('button[aria-label="Network menu"]').click();
@@ -80,7 +81,7 @@ test.describe('dark mode', () => {
       { hooksConfig },
     );
 
-    await component.locator('svg[aria-label="Menu button"]').click();
+    await component.locator('div[aria-label="Menu button"]').click();
     await expect(page).toHaveScreenshot();
 
     await page.locator('button[aria-label="Network menu"]').click();
@@ -96,7 +97,7 @@ test('submenu', async({ mount, page }) => {
     { hooksConfig },
   );
 
-  await component.locator('svg[aria-label="Menu button"]').click();
+  await component.locator('div[aria-label="Menu button"]').click();
   await page.locator('div[aria-label="Blockchain link group"]').click();
   await expect(page).toHaveScreenshot();
 });
@@ -104,7 +105,7 @@ test('submenu', async({ mount, page }) => {
 test.describe('auth', () => {
   const extendedTest = base.extend({
     context: async({ browser }, use) => {
-      const context = await createContextWithEnvs(browser, [
+      const context = await createContextWithStorage(browser, [
         { name: 'NEXT_PUBLIC_FEATURED_NETWORKS', value: FEATURED_NETWORKS_URL },
       ]);
       authFixture(context);
@@ -122,7 +123,7 @@ test.describe('auth', () => {
       { hooksConfig },
     );
 
-    await component.locator('svg[aria-label="Menu button"]').click();
+    await component.locator('div[aria-label="Menu button"]').click();
     await expect(page).toHaveScreenshot();
   });
 });

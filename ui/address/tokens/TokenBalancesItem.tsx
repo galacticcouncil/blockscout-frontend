@@ -1,7 +1,7 @@
-import { Box, Flex, Icon, Skeleton, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, Skeleton, Text, useColorModeValue } from '@chakra-ui/react';
 import React from 'react';
 
-import walletIcon from 'icons/wallet.svg';
+import IconSvg from 'ui/shared/IconSvg';
 
 const TokenBalancesItem = ({ name, value, isLoading }: {name: string; value: string; isLoading: boolean }) => {
 
@@ -9,10 +9,10 @@ const TokenBalancesItem = ({ name, value, isLoading }: {name: string; value: str
 
   return (
     <Flex p={ 5 } bgColor={ bgColor } borderRadius="16px" alignItems="center">
-      <Icon as={ walletIcon } boxSize="30px" mr={ 3 }/>
+      <IconSvg name="wallet" boxSize="30px" mr={ 3 } flexShrink={ 0 }/>
       <Box>
         <Text variant="secondary" fontSize="xs">{ name }</Text>
-        <Skeleton isLoaded={ !isLoading } fontWeight="500">{ value }</Skeleton>
+        <Skeleton isLoaded={ !isLoading } fontWeight="500" whiteSpace="pre-wrap" wordBreak="break-word">{ value }</Skeleton>
       </Box>
     </Flex>
   );

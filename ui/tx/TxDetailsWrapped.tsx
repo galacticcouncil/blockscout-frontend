@@ -5,7 +5,7 @@ import React from 'react';
 import type { Transaction } from 'types/api/transaction';
 import type { ExcludeUndefined } from 'types/utils';
 
-import config from 'configs/app';
+import { currencyUnits } from 'lib/units';
 import Tag from 'ui/shared/chakra/Tag';
 import CurrencyValue from 'ui/shared/CurrencyValue';
 import DetailsInfoItem from 'ui/shared/DetailsInfoItem';
@@ -61,20 +61,22 @@ const TxDetailsWrapped = ({ data }: Props) => {
       >
         <CurrencyValue
           value={ data.value }
-          currency={ config.chain.currency.symbol }
+          currency={ currencyUnits.ether }
           flexWrap="wrap"
         />
       </DetailsInfoItem>
-      <DetailsInfoItem
-        title="Transaction fee"
-        hint="Total transaction fee"
-      >
-        <CurrencyValue
-          value={ data.fee.value }
-          currency={ config.chain.currency.symbol }
-          flexWrap="wrap"
-        />
-      </DetailsInfoItem>
+      { data.fee.value !== null && (
+        <DetailsInfoItem
+          title="Transaction fee"
+          hint="Total transaction fee"
+        >
+          <CurrencyValue
+            value={ data.fee.value }
+            currency={ currencyUnits.ether }
+            flexWrap="wrap"
+          />
+        </DetailsInfoItem>
+      ) }
       <TxDetailsGasPrice gasPrice={ data.gas_price }/>
       { data.gas_limit && (
         <DetailsInfoItem
